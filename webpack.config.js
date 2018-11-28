@@ -5,12 +5,13 @@ const webpack = require('webpack');
 
 module.exports = {
     mode: 'development',
-    entry: ["babel-polyfill", "./app.js"],
+    entry: ["babel-polyfill", "./index.js"],
     devServer: {
         contentBase: './dist',
         inline: true,
         hot: true
     },
+    devtool: 'inline-source-map',
     output: {
         filename: '[name].bundle.js',
         path: path.resolve(__dirname, 'dist')
@@ -22,7 +23,9 @@ module.exports = {
             template: './template.html'
         }),
         new webpack.HotModuleReplacementPlugin(),
-        new webpack.NamedModulesPlugin()
+        new webpack.NamedModulesPlugin(),
+        // Ignore all locale files of moment.js
+        new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     ],
     module: {
         rules: [
@@ -45,6 +48,18 @@ module.exports = {
                     'style-loader',
                     'css-loader'
                 ]
+            },
+            {
+                test: /\.(png|svg|jpg|gif)$/,
+                use: [
+                    {
+                        loader: 'file-loader',
+                        options: {
+                            name: '[name].[ext]',
+                            outputPath: 'images/'
+                        }
+                    }
+                ]
             }
         ]
     },
@@ -53,7 +68,7 @@ module.exports = {
             name: 'runtime'
         },
         splitChunks: {
-            chunks: 'all'
+            chunks: 'async'
         }
     }
 }
